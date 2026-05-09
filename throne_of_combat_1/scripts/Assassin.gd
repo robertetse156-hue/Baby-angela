@@ -6,35 +6,42 @@ func _init():
 	max_mana = 120.0
 	move_speed = 6.5
 
-# Skill 1: Shadow Dash
-func skill_1():
-	if use_mana(15):
-		print("Assassin: Shadow Dash!")
-		# Quick blink forward
-
-# Skill 2: Poison Dagger
-func skill_2():
-	if use_mana(20):
-		print("Assassin: Poison Dagger!")
-		gain_brutality(5)
-		# Ranged projectile with DOT
-
-# Skill 3: Blade Whirl
-func skill_3():
-	if use_mana(25):
-		print("Assassin: Blade Whirl!")
-		gain_brutality(10)
-		# Spin attack around character
-
-# Skill 4: Stealth
-func skill_4():
-	if use_mana(30):
-		print("Assassin: Stealth (Invisibility)")
-		# Become invisible for duration
-
-# Ultimate: Thousand Cuts
-func ultimate():
-	if use_mana(60):
-		print("Assassin: ULTIMATE - Thousand Cuts!")
-		gain_brutality(30)
-		# Multi-hit target lock-on attack
+func _execute_skill(index: int):
+	match index:
+		1: # Shadow Dash
+			if use_mana(15):
+				play_animation("ShadowDash")
+				var dash_dir = -global_transform.basis.z
+				var tween = create_tween()
+				tween.tween_property(self, "global_position", global_position + dash_dir * 7.0, 0.2)
+		2: # Poison Dagger
+			if use_mana(20):
+				is_attacking = true
+				play_animation("ThrowDagger")
+				# Projectile spawning logic would go here
+				await get_tree().create_timer(0.4).timeout
+				is_attacking = false
+				gain_brutality(5)
+		3: # Blade Whirl
+			if use_mana(25):
+				is_attacking = true
+				play_animation("BladeWhirl")
+				# AOE collision check
+				await get_tree().create_timer(0.6).timeout
+				is_attacking = false
+				gain_brutality(10)
+		4: # Stealth
+			if use_mana(30):
+				is_casting = true
+				play_animation("Stealth")
+				# Logic for invisibility and speed buff
+				await get_tree().create_timer(1.0).timeout
+				is_casting = false
+		5: # ULTIMATE: Thousand Cuts
+			if use_mana(60):
+				is_attacking = true
+				play_animation("ThousandCuts")
+				# Multi-dash target logic
+				await get_tree().create_timer(1.5).timeout
+				is_attacking = false
+				gain_brutality(30)
